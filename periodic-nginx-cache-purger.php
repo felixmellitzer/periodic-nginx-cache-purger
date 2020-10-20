@@ -19,3 +19,17 @@
  * License:           GPL v2 or later
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  */
+
+// Can't open file directly
+if (!defined('ABSPATH')) {
+	die();
+}
+
+function addDailyPurgeCronEvent()
+{
+    if (!wp_next_scheduled('rt_nginx_helper_purge_all')) {
+        wp_schedule_event(time(), 'daily', 'rt_nginx_helper_purge_all'); //Hook from the Nginx Helper Plugin
+    }
+}
+
+register_activation_hook(__FILE__, 'addDailyCronEvent');
