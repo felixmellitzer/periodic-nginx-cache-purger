@@ -20,14 +20,14 @@
 
 // Can't open file directly
 if (!defined('ABSPATH')) {
-	die();
+    die();
 }
 
 function errorNoticeIfPluginIsNotActive()
 {
-	?>
+    ?>
     <div class="notice notice-error">
-    	<p>Nginx Helper Plugin is REQUIRED!</p>
+        <p>Nginx Helper Plugin is REQUIRED!</p>
     </div>
     <?php
 }
@@ -35,7 +35,7 @@ function errorNoticeIfPluginIsNotActive()
 function addPeriodicPurgeCronEvent()
 {
     if (!wp_next_scheduled('rt_nginx_helper_purge_all')) {
-    	wp_schedule_event(time(), 'twicedaily', 'rt_nginx_helper_purge_all'); //Hook from the Nginx Helper Plugin
+        wp_schedule_event(time(), 'twicedaily', 'rt_nginx_helper_purge_all'); //Hook from the Nginx Helper Plugin
     } 
 }
 
@@ -54,11 +54,11 @@ function runPeriodicNginxCachePurger()
 
     // Checks if Nginx Helper Plugin is active
     if (is_plugin_active('nginx-helper/nginx-helper.php')) {
-	   register_activation_hook(__FILE__, 'addPeriodicPurgeCronEvent');
-    	
+       register_activation_hook(__FILE__, 'addPeriodicPurgeCronEvent');
+        
     } else { // If Nginx Helper Plugin is not active -> error notice and deactivate plugin
-    	add_action('admin_notices', 'errorNoticeIfPluginIsNotActive');
-    	deactivate_plugins('periodic-nginx-cache-purger/periodic-nginx-cache-purger.php');
+        add_action('admin_notices', 'errorNoticeIfPluginIsNotActive');
+        deactivate_plugins('periodic-nginx-cache-purger/periodic-nginx-cache-purger.php');
     }
 }
 runPeriodicNginxCachePurger();
