@@ -1,19 +1,17 @@
 <?php
 /**
- * Daily Purger for Nginx Helper
+ * Periodic Nginx Cache Purger
  *
- * @package           PluginPackage
- * @author            Felix Mellitzer
+ * @package           PeriodicNginxCachePruger
+ * @author            TFM Agency GmbH
  * @copyright         2020 TFM Agency GmbH
  * @license           GPL-2.0-or-later
  *
  * @wordpress-plugin
- * Plugin Name:       Daily Purger for Nginx Helper
- * Description:       purges cache periodically with Nginx Helper WordPress Plugin
+ * Plugin Name:       Periodic Nginx Cache Purger
+ * Description:       Purges cache periodically with Nginx Helper WordPress Plugin.
  * Version:           1.0.0
- * Requires at least: 5.2
- * Requires PHP:      7.2
- * Author:            Felix Mellitzer
+ * Author:            TFM Agency GmbH
  * Author URI:        https://tfm.agency
  * Text Domain:       periodic-nginx-cache-purger
  * License:           GPL v2 or later
@@ -25,10 +23,6 @@ if (!defined('ABSPATH')) {
 	die();
 }
 
-if (!function_exists('is_plugin_active')) {
-    require_once(ABSPATH . '/wp-admin/includes/plugin.php');
-}
-
 function errorNoticeIfPluginIsNotActive()
 {
 	?>
@@ -38,18 +32,33 @@ function errorNoticeIfPluginIsNotActive()
     <?php
 }
 
-function addDailyPurgeCronEvent()
+function addPeriodicPurgeCronEvent()
 {
     if (!wp_next_scheduled('rt_nginx_helper_purge_all')) {
-    	wp_schedule_event(time(), 'daily', 'rt_nginx_helper_purge_all'); //Hook from the Nginx Helper Plugin
+    	wp_schedule_event(time(), 'twicedaily', 'rt_nginx_helper_purge_all'); //Hook from the Nginx Helper Plugin
     } 
 }
 
-// Checks if Nginx Helper Plugin is active
-if (is_plugin_active('nginx-helper/nginx-helper.php')) {
-	register_activation_hook(__FILE__, 'addDailyPurgeCronEvent');
-	
-} else { // If Nginx Helper Plugin is not active -> error notice and deactivate plugin
-	add_action('admin_notices', 'errorNoticeIfPluginIsNotActive');
-	deactivate_plugins('periodic-nginx-cache-purger/periodic-nginx-cache-purger.php');
+function clearCronJobOnDeactivation()
+{
+    wp_clear_scheduled_hook('rt_nginx_helper_purge_all');
 }
+
+function runPeriodicNginxCachePurger()
+{
+    register_deactivation_hook(__FILE__, 'clearCronJobOnDeactivation');
+
+    if (!function_exists('is_plugin_active')) {
+        require_once(ABSPATH . '/wp-admin/includes/plugin.php');
+    }
+
+    // Checks if Nginx Helper Plugin is active
+    if (is_plugin_active('nginx-helper/nginx-helper.php')) {
+	   register_activation_hook(__FILE__, 'addPeriodicPurgeCronEvent');
+    	
+    } else { // If Nginx Helper Plugin is not active -> error notice and deactivate plugin
+    	add_action('admin_notices', 'errorNoticeIfPluginIsNotActive');
+    	deactivate_plugins('periodic-nginx-cache-purger/periodic-nginx-cache-purger.php');
+    }
+}
+runPeriodicNginxCachePurger();
