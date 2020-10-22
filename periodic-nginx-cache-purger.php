@@ -23,7 +23,7 @@ if (!defined('ABSPATH')) {
     die();
 }
 
-function errorNoticeIfPluginIsNotActive()
+function pncpErrorNoticeIfPluginIsNotActive()
 {
     ?>
     <div class="notice notice-error">
@@ -32,21 +32,21 @@ function errorNoticeIfPluginIsNotActive()
     <?php
 }
 
-function addPeriodicPurgeCronEvent()
+function pncpAddPeriodicPurgeCronEvent()
 {
     if (!wp_next_scheduled('rt_nginx_helper_purge_all')) {
         wp_schedule_event(time(), 'twicedaily', 'rt_nginx_helper_purge_all'); //Hook from the Nginx Helper Plugin
     } 
 }
 
-function clearCronJobOnDeactivation()
+function pncpClearCronJobOnDeactivation()
 {
     wp_clear_scheduled_hook('rt_nginx_helper_purge_all');
 }
 
-function runPeriodicNginxCachePurger()
+function pncpRunPeriodicNginxCachePurger()
 {
-    register_deactivation_hook(__FILE__, 'clearCronJobOnDeactivation');
+    register_deactivation_hook(__FILE__, 'pncpClearCronJobOnDeactivation');
 
     if (!function_exists('is_plugin_active')) {
         require_once(ABSPATH . '/wp-admin/includes/plugin.php');
@@ -54,11 +54,11 @@ function runPeriodicNginxCachePurger()
 
     // Checks if Nginx Helper Plugin is active
     if (is_plugin_active('nginx-helper/nginx-helper.php')) {
-       register_activation_hook(__FILE__, 'addPeriodicPurgeCronEvent');
+       register_activation_hook(__FILE__, 'pncpAddPeriodicPurgeCronEvent');
         
     } else { // If Nginx Helper Plugin is not active -> error notice and deactivate plugin
-        add_action('admin_notices', 'errorNoticeIfPluginIsNotActive');
+        add_action('admin_notices', 'pncpErrorNoticeIfPluginIsNotActive');
         deactivate_plugins('periodic-nginx-cache-purger/periodic-nginx-cache-purger.php');
     }
 }
-runPeriodicNginxCachePurger();
+pncpRunPeriodicNginxCachePurger();
