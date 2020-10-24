@@ -13,6 +13,11 @@ Purges cache twice a day running a WP Cron Job with Nginx Helper WordPress Plugi
 
 ## Installation
 
+Automatic Installation
+
+1. Log in to your WordPress admin panel, navigate to the Plugins menu and click Add New.
+2. In the search field type “Periodic Nginx Cache Purger” and click Search Plugins. From the search results, pick Periodic Nginx Cache Purger and click Install Now. Wordpress will ask you to confirm to complete the installation.
+
 Manual Installation
 
 1. Extract the zip file.
