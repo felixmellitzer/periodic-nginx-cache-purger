@@ -25,93 +25,19 @@ if (!defined('ABSPATH')) {
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-function pncpErrorNoticeIfPluginIsNotActive()
+
+register_activation_hook(__FILE__, 'PNCP\Activator::activate');
+register_deactivation_hook(__FILE__, 'PNCP\Deactivator::deactivate');
+register_uninstall_hook(__FILE__, 'PNCP\Uninstaller::uninstall');
+
+
+function pncpRunPlugin()
 {
-    ?>
-    <div class="notice notice-error">
-        <p>Nginx Helper Plugin is REQUIRED!</p>
-    </div>
-    <?php
+    $plugin_checker = new PNCP\PluginChecker();
+    $plugin_checker->run();
+
+    $plugin = new PNCP\Main;
+    $plugin->run();
 }
 
-function pncpAddPeriodicPurgeCronEvent()
-{
-    if (isset($_POST['purge_options'])) {
-        update_option('purge_options', $_POST['purge_options']);
-    }
-
-    $option = get_option('purge_options');
-
-    if ($option == 'hourly') {
-        wp_clear_scheduled_hook('rt_nginx_helper_purge_all');
-        wp_schedule_event(time(), 'hourly', 'rt_nginx_helper_purge_all');
-    } elseif ($option == 'twicedaily') {
-        wp_clear_scheduled_hook('rt_nginx_helper_purge_all');
-        wp_schedule_event(time(), 'twicedaily', 'rt_nginx_helper_purge_all');
-    } elseif ($option == 'daily') {
-        wp_clear_scheduled_hook('rt_nginx_helper_purge_all');
-        wp_schedule_event(time(), 'daily', 'rt_nginx_helper_purge_all');
-    } elseif ($option == 'weekly') {
-        wp_clear_scheduled_hook('rt_nginx_helper_purge_all');
-        wp_schedule_event(time(), 'weekly', 'rt_nginx_helper_purge_all');
-    }
-}
-
-function pncpSetDefaultInterval()
-{
-    update_option('purge_options', 'weekly');
-    pncpAddPeriodicPurgeCronEvent();
-}
-
-function pncpClearCronJobOnDeactivation()
-{
-    wp_clear_scheduled_hook('rt_nginx_helper_purge_all');
-}
-
-# Register all Settings and Fields.
-function pncpSetPeriodicSettings()
-{
-    add_settings_section('main-section', 'Periodic Nginx Cache Purger', 'pncpSettingsTitle', 'general');
-    add_settings_field('interval', 'Choose your Purge Interval', 'pncpAddIntervalForm', 'general', 'main-section');
-}
-
-function pncpSettingsTitle()
-{ 
-    echo '';
-}
-
-function pncpAddIntervalForm()
-{ ?><form method="post" action="options.php">
-        <select name="purge_options">
-            <option value="hourly" <?php selected(get_option('purge_options'), "hourly"); ?>>Hourly</option>
-            <option value="twicedaily" <?php selected(get_option('purge_options'), "twicedaily"); ?>>Twicedaily</option>
-            <option value="daily" <?php selected(get_option('purge_options'), "daily"); ?>>Daily</option>
-            <option value="weekly" <?php selected(get_option('purge_options'), "weekly"); ?>>Weekly</option>
-        </select>
-    </form> <?php
-}
-
-# This is the Run Function
-function pncpRunPeriodicNginxCachePurger()
-{
-    register_setting('purge_options', 'purge_options');
-    register_deactivation_hook(__FILE__, 'pncpClearCronJobOnDeactivation');
-    add_action('admin_init', 'pncpSetPeriodicSettings');
-
-    pncpAddPeriodicPurgeCronEvent();
-
-    if (!function_exists('is_plugin_active')) {
-        require_once(ABSPATH . '/wp-admin/includes/plugin.php');
-    }
-
-    // Checks if Nginx Helper Plugin is active
-    if (is_plugin_active('nginx-helper/nginx-helper.php')) {
-       register_activation_hook(__FILE__, 'pncpSetDefaultInterval');
-        
-    } else { // If Nginx Helper Plugin is not active -> error notice and deactivate plugin
-        add_action('admin_notices', 'pncpErrorNoticeIfPluginIsNotActive');
-        deactivate_plugins('periodic-nginx-cache-purger/periodic-nginx-cache-purger.php');
-    }
-}
-
-pncpRunPeriodicNginxCachePurger();
+pncpRunPlugin();
