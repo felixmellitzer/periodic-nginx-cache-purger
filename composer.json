@@ -1,0 +1,5 @@
+{
+    "name": "tfm-agency/periodic-nginx-cache-purger",
+    "license": "GPLv2",
+    "require": {}
+}
