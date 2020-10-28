@@ -66,34 +66,11 @@ function pncpClearCronJobOnDeactivation()
     wp_clear_scheduled_hook('rt_nginx_helper_purge_all');
 }
 
-function pncpRunPeriodicNginxCachePurger()
-{
-    register_deactivation_hook(__FILE__, 'pncpClearCronJobOnDeactivation');
-
-    if (!function_exists('is_plugin_active')) {
-        require_once(ABSPATH . '/wp-admin/includes/plugin.php');
-    }
-
-    // Checks if Nginx Helper Plugin is active
-    if (is_plugin_active('nginx-helper/nginx-helper.php')) {
-       register_activation_hook(__FILE__, 'pncpSetDefaultInterval');
-        
-    } else { // If Nginx Helper Plugin is not active -> error notice and deactivate plugin
-        add_action('admin_notices', 'pncpErrorNoticeIfPluginIsNotActive');
-        deactivate_plugins('periodic-nginx-cache-purger/periodic-nginx-cache-purger.php');
-    }
-}
-
-pncpAddPeriodicPurgeCronEvent();
-
-pncpRunPeriodicNginxCachePurger();
-
-add_action('admin_init', 'pncpSetPeriodicSettings');
 
 # Register all Settings and Fields.
 function pncpSetPeriodicSettings()
 {
-    register_setting('purge_options', 'purge_options');
+    register_setting('purge_options', 'purge_options'); // Has it to be called every time??
 
     add_settings_section('main-section', 'Periodic Nginx Cache Purger', 'pncpSettingsTitle', 'general');
 
@@ -115,3 +92,27 @@ function pncpAddIntervalForm()
         </select>
     </form> <?php
 }
+
+# This is the Run Function
+function pncpRunPeriodicNginxCachePurger()
+{
+    register_deactivation_hook(__FILE__, 'pncpClearCronJobOnDeactivation');
+    add_action('admin_init', 'pncpSetPeriodicSettings');
+
+    pncpAddPeriodicPurgeCronEvent();
+
+    if (!function_exists('is_plugin_active')) {
+        require_once(ABSPATH . '/wp-admin/includes/plugin.php');
+    }
+
+    // Checks if Nginx Helper Plugin is active
+    if (is_plugin_active('nginx-helper/nginx-helper.php')) {
+       register_activation_hook(__FILE__, 'pncpSetDefaultInterval');
+        
+    } else { // If Nginx Helper Plugin is not active -> error notice and deactivate plugin
+        add_action('admin_notices', 'pncpErrorNoticeIfPluginIsNotActive');
+        deactivate_plugins('periodic-nginx-cache-purger/periodic-nginx-cache-purger.php');
+    }
+}
+
+pncpRunPeriodicNginxCachePurger();
