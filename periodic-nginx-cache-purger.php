@@ -23,42 +23,21 @@ if (!defined('ABSPATH')) {
     die();
 }
 
-function pncpErrorNoticeIfPluginIsNotActive()
+require_once __DIR__ . '/vendor/autoload.php';
+
+
+register_activation_hook(__FILE__, 'PNCP\Activator::activate');
+register_deactivation_hook(__FILE__, 'PNCP\Deactivator::deactivate');
+register_uninstall_hook(__FILE__, 'PNCP\Uninstaller::uninstall');
+
+
+function pncpRunPlugin()
 {
-    ?>
-    <div class="notice notice-error">
-        <p>Nginx Helper Plugin is REQUIRED!</p>
-    </div>
-    <?php
+    $plugin_checker = new PNCP\PluginChecker();
+    $plugin_checker->run();
+
+    $plugin = new PNCP\Main;
+    $plugin->run();
 }
 
-function pncpAddPeriodicPurgeCronEvent()
-{
-    if (!wp_next_scheduled('rt_nginx_helper_purge_all')) {
-        wp_schedule_event(time(), 'twicedaily', 'rt_nginx_helper_purge_all'); //Hook from the Nginx Helper Plugin
-    } 
-}
-
-function pncpClearCronJobOnDeactivation()
-{
-    wp_clear_scheduled_hook('rt_nginx_helper_purge_all');
-}
-
-function pncpRunPeriodicNginxCachePurger()
-{
-    register_deactivation_hook(__FILE__, 'pncpClearCronJobOnDeactivation');
-
-    if (!function_exists('is_plugin_active')) {
-        require_once(ABSPATH . '/wp-admin/includes/plugin.php');
-    }
-
-    // Checks if Nginx Helper Plugin is active
-    if (is_plugin_active('nginx-helper/nginx-helper.php')) {
-       register_activation_hook(__FILE__, 'pncpAddPeriodicPurgeCronEvent');
-        
-    } else { // If Nginx Helper Plugin is not active -> error notice and deactivate plugin
-        add_action('admin_notices', 'pncpErrorNoticeIfPluginIsNotActive');
-        deactivate_plugins('periodic-nginx-cache-purger/periodic-nginx-cache-purger.php');
-    }
-}
-pncpRunPeriodicNginxCachePurger();
+pncpRunPlugin();
