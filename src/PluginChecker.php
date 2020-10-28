@@ -16,7 +16,7 @@ class PluginChecker {
 
 	public function deactivateThisPlugin()
 	{
-		deactivate_plugins('periodic-nginx-cache-purger/periodic-nginx-cache-purger.php');
+		deactivate_plugins(PNCP_PLUGIN_BASENAME);
 	}
 
 	public function run()

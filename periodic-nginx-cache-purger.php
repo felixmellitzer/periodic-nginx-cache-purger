@@ -25,6 +25,8 @@ if (!defined('ABSPATH')) {
 
 require_once __DIR__ . '/vendor/autoload.php';
 
+define('PNCP_PLUGIN_BASENAME', plugin_basename(__FILE__));
+
 
 register_activation_hook(__FILE__, 'PNCP\Activator::activate');
 register_deactivation_hook(__FILE__, 'PNCP\Deactivator::deactivate');
