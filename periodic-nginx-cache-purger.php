@@ -11,7 +11,7 @@
  * Plugin Name:       Periodic Nginx Cache Purger
  * Plugin URI:        https://github.com/TFM-Agency/periodic-nginx-cache-purger
  * Description:       Purges cache periodically with Nginx Helper WordPress Plugin.
- * Version:           1.0.0
+ * Version:           1.1.0
  * Author:            TFM Agency GmbH
  * Author URI:        https://tfm.agency
  * License:           GPL v2 or later
