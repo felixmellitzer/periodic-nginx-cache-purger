@@ -1,5 +1,12 @@
 {
     "name": "tfm-agency/periodic-nginx-cache-purger",
     "license": "GPLv2",
-    "require": {}
+    "require": {},
+	
+    "autoload": {
+        "psr-4": {
+            "PNCP\\": "src/"
+        }
+    }
 }
+
