@@ -6,7 +6,8 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.txt
 Tested up to: 5.5
 Stable tag: trunk
 
-Purges cache twice a day running a WP Cron Job with Nginx Helper WordPress Plugin.
+Purges cache once a week by default, running a WP Cron Job with Nginx Helper WordPress Plugin.
+The interval can be changed in the general settings in the WordPress backend.
 
 == Installation ==
 
