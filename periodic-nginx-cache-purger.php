@@ -66,14 +66,10 @@ function pncpClearCronJobOnDeactivation()
     wp_clear_scheduled_hook('rt_nginx_helper_purge_all');
 }
 
-
 # Register all Settings and Fields.
 function pncpSetPeriodicSettings()
 {
-    register_setting('purge_options', 'purge_options'); // Has it to be called every time??
-
     add_settings_section('main-section', 'Periodic Nginx Cache Purger', 'pncpSettingsTitle', 'general');
-
     add_settings_field('interval', 'Choose your Purge Interval', 'pncpAddIntervalForm', 'general', 'main-section');
 }
 
@@ -96,6 +92,7 @@ function pncpAddIntervalForm()
 # This is the Run Function
 function pncpRunPeriodicNginxCachePurger()
 {
+    register_setting('purge_options', 'purge_options');
     register_deactivation_hook(__FILE__, 'pncpClearCronJobOnDeactivation');
     add_action('admin_init', 'pncpSetPeriodicSettings');
 
