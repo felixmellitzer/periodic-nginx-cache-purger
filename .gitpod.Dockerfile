@@ -18,16 +18,9 @@ RUN git clone https://github.com/luizbills/gitpod-wordpress $HOME/gitpod-wordpre
     . $HOME/.bashrc && \
     bash -c ". .nvm/nvm.sh && nvm install --lts"
 
-### MailHog ###
+### Apache ###
 USER root
-RUN go get github.com/mailhog/MailHog && \
-    go get github.com/mailhog/mhsendmail && \
-    cp $GOPATH/bin/MailHog /usr/local/bin/mailhog && \
-    cp $GOPATH/bin/mhsendmail /usr/local/bin/mhsendmail && \
-    ln $GOPATH/bin/mhsendmail /usr/sbin/sendmail && \
-    ln $GOPATH/bin/mhsendmail /usr/bin/mail &&\
-    ### Apache ###
-    apt-get -y install apache2 && \
+RUN apt-get -y install apache2 && \
     chown -R gitpod:gitpod /var/run/apache2 /var/lock/apache2 /var/log/apache2 && \
     echo "include ${HOME}/gitpod-wordpress/conf/apache.conf" > /etc/apache2/apache2.conf && \
     echo ". ${HOME}/gitpod-wordpress/conf/apache.env.sh" > /etc/apache2/envvars && \
@@ -35,22 +28,22 @@ RUN go get github.com/mailhog/MailHog && \
     add-apt-repository ppa:ondrej/php && \
     apt-get update && \
     apt-get -y install \
-        libapache2-mod-php \
-        php${PHP_VERSION} \
-        php${PHP_VERSION}-common \
-        php${PHP_VERSION}-cli \
-        php${PHP_VERSION}-mbstring \
-        php${PHP_VERSION}-curl \
-        php${PHP_VERSION}-gd \
-        php${PHP_VERSION}-intl \
-        php${PHP_VERSION}-mysql \
-        php${PHP_VERSION}-xml \
-        php${PHP_VERSION}-json \
-        php${PHP_VERSION}-zip \
-        php${PHP_VERSION}-soap \
-        php${PHP_VERSION}-bcmath \
-        php${PHP_VERSION}-opcache \
-        php-xdebug && \
+    libapache2-mod-php \
+    php${PHP_VERSION} \
+    php${PHP_VERSION}-common \
+    php${PHP_VERSION}-cli \
+    php${PHP_VERSION}-mbstring \
+    php${PHP_VERSION}-curl \
+    php${PHP_VERSION}-gd \
+    php${PHP_VERSION}-intl \
+    php${PHP_VERSION}-mysql \
+    php${PHP_VERSION}-xml \
+    php${PHP_VERSION}-json \
+    php${PHP_VERSION}-zip \
+    php${PHP_VERSION}-soap \
+    php${PHP_VERSION}-bcmath \
+    php${PHP_VERSION}-opcache \
+    php-xdebug && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* && \
     cat /home/gitpod/gitpod-wordpress/conf/php.ini >> /etc/php/${PHP_VERSION}/apache2/php.ini && \
     ### Setup PHP in Apache ###
